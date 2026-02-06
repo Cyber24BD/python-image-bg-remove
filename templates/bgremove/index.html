@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Remove Background{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div
+                    class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-sm">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <span class="text-lg font-bold text-gray-900">Toamun</span>
+            </div>
+            <a href="https://github.com" target="_blank" class="text-gray-500 hover:text-gray-900 transition-colors"
+                aria-label="GitHub">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                        clip-rule="evenodd" />
+                </svg>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1 container mx-auto px-4 py-10">
+        <!-- Hero -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+                Remove Image Backgrounds <span class="text-brand-600">Instantly</span>
+            </h1>
+            <p class="text-gray-600 max-w-xl mx-auto">
+                AI-powered, open-source background removal. No login. 100% free.
+            </p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="max-w-3xl mx-auto mb-6 flex justify-center">
+            <div class="bg-gray-100 p-1 rounded-xl inline-flex">
+                <button id="tab-single"
+                    class="px-6 py-2 rounded-lg text-sm font-medium transition-all bg-white text-gray-900 shadow-sm">Single
+                    Image</button>
+                <button id="tab-batch"
+                    class="px-6 py-2 rounded-lg text-sm font-medium transition-all text-gray-500 hover:text-gray-900">Batch
+                    Processing</button>
+            </div>
+        </div>
+
+        <!-- Single Processor -->
+        <div id="view-single" class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <!-- Engine Toggle -->
+                <div class="flex justify-center gap-2 mb-6">
+                    <button id="engine-withoutbg" class="engine-btn active">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        withoutbg
+                    </button>
+                    <button id="engine-rembg" class="engine-btn">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        rembg
+                    </button>
+                </div>
+
+                <!-- Upload Zone -->
+                <div id="upload-zone" class="upload-zone relative">
+                    <input type="file" id="file-input" class="hidden" accept="image/jpeg,image/png,image/webp">
+
+                    <div id="upload-placeholder">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-xl bg-brand-50 flex items-center justify-center">
+                            <svg class="w-8 h-8 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                        </div>
+                        <p class="font-medium text-gray-900">Drop image here or click to browse</p>
+                        <p class="text-sm text-gray-500 mt-1">JPEG, PNG, WebP supported</p>
+                        <p class="text-xs text-brand-600 mt-2 font-medium">Or paste from clipboard (Ctrl+V)</p>
+                    </div>
+
+                    <div id="processing-state" class="hidden">
+                        <div class="processing-spinner w-12 h-12 mx-auto mb-4"></div>
+                        <p class="font-medium text-gray-900">Processing...</p>
+                        <p class="text-sm text-gray-500">First run may take longer</p>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div id="result-section" class="hidden mt-6">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs font-medium text-gray-500 uppercase mb-2">Original</p>
+                            <div class="aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                                <img id="original-image" src="" alt="Original"
+                                    class="w-full h-full object-contain img-fade">
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-gray-500 uppercase mb-2">
+                                Result
+                                <span
+                                    class="bg-brand-100 text-brand-700 text-xs px-2 py-0.5 rounded-full ml-2">Editable</span>
+                            </p>
+                            <div
+                                class="aspect-square rounded-xl overflow-hidden checkered-bg border border-gray-200 relative group">
+                                <img id="result-image" src="" alt="Result"
+                                    class="w-full h-full object-contain img-fade relative z-10">
+                                <!-- Loading Overlay for Edits -->
+                                <div id="edit-loading"
+                                    class="absolute inset-0 bg-white/50 backdrop-blur-sm z-20 flex items-center justify-center hidden">
+                                    <div
+                                        class="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Editor Toolbar -->
+                    <div class="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <p class="text-sm font-medium text-gray-700 mb-3">Background Editor</p>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <!-- Colors -->
+                            <div class="flex gap-2">
+                                <button
+                                    class="color-btn w-8 h-8 rounded-full border border-gray-300 bg-transparent relative overflow-hidden"
+                                    data-color="transparent" title="Transparent">
+                                    <div class="absolute inset-0 checkered-bg opacity-50"></div>
+                                </button>
+                                <button class="color-btn w-8 h-8 rounded-full border border-gray-200 bg-white"
+                                    data-color="#ffffff" title="White"></button>
+                                <button class="color-btn w-8 h-8 rounded-full border border-gray-200 bg-black"
+                                    data-color="#000000" title="Black"></button>
+                                <div class="relative">
+                                    <input type="color" id="bg-color-picker"
+                                        class="w-8 h-8 rounded-full cursor-pointer opacity-0 absolute inset-0">
+                                    <div
+                                        class="w-8 h-8 rounded-full border border-gray-200 bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500 flex items-center justify-center pointer-events-none">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-px h-8 bg-gray-300 mx-2"></div>
+
+                            <!-- BG Image -->
+                            <button id="upload-bg-btn"
+                                class="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:border-brand-500 hover:text-brand-600 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Image
+                            </button>
+                            <input type="file" id="bg-file-input" class="hidden" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center gap-3 mt-6">
+                        <button id="download-btn" class="btn-primary">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Download PNG
+                        </button>
+                        <button id="new-image-btn" class="btn-secondary">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            New Image
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error -->
+                <div id="error-state" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p class="text-red-600 text-sm text-center" id="error-message"></p>
+                </div>
+            </div>
+        </div>
+
+</div>
+</div>
+
+<!-- Batch Processor -->
+<div id="view-batch" class="max-w-3xl mx-auto hidden">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <!-- Batch Upload Zone -->
+        <div id="batch-upload-zone" class="upload-zone mb-6">
+            <input type="file" id="batch-file-input" class="hidden" accept="image/jpeg,image/png,image/webp" multiple>
+            <div class="w-16 h-16 mx-auto mb-4 rounded-xl bg-blue-50 flex items-center justify-center">
+                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+            </div>
+            <p class="font-medium text-gray-900">Drop multiple images here</p>
+            <p class="text-sm text-gray-500 mt-1">Up to 20 images at once</p>
+        </div>
+
+        <!-- File List -->
+        <div id="batch-file-list" class="space-y-3 mb-6 hidden">
+            <!-- Items injected by JS -->
+        </div>
+
+        <!-- Actions -->
+        <div id="batch-actions" class="flex justify-between items-center hidden">
+            <span id="batch-status" class="text-sm text-gray-500">0 files selected</span>
+            <div class="flex gap-3">
+                <button id="batch-clear-btn"
+                    class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">Clear
+                    All</button>
+                <button id="batch-process-btn" class="btn-primary">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Start Processing
+                </button>
+                <button id="batch-download-btn" class="hidden btn-secondary bg-blue-50 text-blue-600 hover:bg-blue-100">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download All ZIP
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features -->
+<div class="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto mt-12">
+    <div class="p-5 bg-white rounded-xl border border-gray-200">
+        <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center mb-3">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+        </div>
+        <h3 class="font-semibold text-gray-900 mb-1">No Login Required</h3>
+        <p class="text-gray-600 text-sm">Start instantly. No accounts needed.</p>
+    </div>
+    <div class="p-5 bg-white rounded-xl border border-gray-200">
+        <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-3">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+        </div>
+        <h3 class="font-semibold text-gray-900 mb-1">Open Source</h3>
+        <p class="text-gray-600 text-sm">View code, contribute, or self-host.</p>
+    </div>
+    <div class="p-5 bg-white rounded-xl border border-gray-200">
+        <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center mb-3">
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+        </div>
+        <h3 class="font-semibold text-gray-900 mb-1">Two AI Engines</h3>
+        <p class="text-gray-600 text-sm">Choose withoutbg or rembg.</p>
+    </div>
+</div>
+</main>
+
+<!-- Footer -->
+<footer class="py-4 border-t border-gray-200 bg-white">
+    <p class="text-center text-gray-500 text-sm">© 2026 Toamun. Built with Django, withoutbg & rembg.</p>
+</footer>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/app.js' %}"></script>
+{% endblock %}

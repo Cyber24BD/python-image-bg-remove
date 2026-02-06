@@ -1,0 +1,124 @@
+/* Toamun BG Remove - Optimized Styles */
+
+/* Spinner */
+.processing-spinner {
+    border: 3px solid #e5e7eb;
+    border-top-color: #22c55e;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Upload Zone */
+.upload-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 1rem;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+    border-color: #22c55e;
+    background-color: #f0fdf4;
+}
+
+/* Engine Buttons */
+.engine-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+
+.engine-btn:hover {
+    border-color: #22c55e;
+    color: #16a34a;
+}
+
+.engine-btn.active {
+    background: linear-gradient(to right, #22c55e, #16a34a);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+/* Buttons */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    background: linear-gradient(to right, #22c55e, #16a34a);
+    color: #fff;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    background: #f3f4f6;
+    color: #374151;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+/* Checkered BG */
+.checkered-bg {
+    background: repeating-conic-gradient(#e5e7eb 0% 25%, #fff 0% 50%) 50% / 16px 16px;
+}
+
+/* Image fade-in */
+.img-fade {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.img-fade.loaded {
+    opacity: 1;
+}
+
+/* Color buttons */
+.color-btn {
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.color-btn:focus,
+.color-btn:active {
+    outline: 2px solid #22c55e;
+    outline-offset: 2px;
+}

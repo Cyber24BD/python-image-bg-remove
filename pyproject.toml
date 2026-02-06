@@ -1,0 +1,14 @@
+[project]
+name = "bg-remove"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=6.0.2",
+    "withoutbg>=1.0.2",
+    "rembg>=2.0.72",
+    "pillow>=10.0.0",
+    "onnxruntime>=1.17.0",
+    "numba>=0.60.0",
+]

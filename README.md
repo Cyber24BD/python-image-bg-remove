@@ -1,4 +1,4 @@
-# WithoutBG
+# Python Image Background Remover
 
 An open-source, high-accuracy background removal tool powered by deep learning models. This project leverages the `withoutbg` and `rembg` engines to provide superior results for removing backgrounds from images.
 
@@ -30,8 +30,8 @@ An open-source, high-accuracy background removal tool powered by deep learning m
 1.  **Clone the Repository**
 
     ```bash
-    git clone https://github.com/yourusername/withoutbg.git
-    cd "Bg Remove"
+    git clone https://github.com/Cyber24BD/python-image-bg-remove.git
+    cd python-image-bg-remove
     ```
 
 2.  **Install Dependencies**

@@ -14,6 +14,10 @@
         viewSingle: $('view-single'),
         viewBatch: $('view-batch'),
 
+        // Engine
+        withoutbg: $('engine-withoutbg'),
+        rembg: $('engine-rembg'),
+
         // Single
         zone: $('upload-zone'),
         input: $('file-input'),
@@ -26,18 +30,20 @@
         resultImg: $('result-image'),
         downloadBtn: $('download-btn'),
         newBtn: $('new-image-btn'),
-        withoutbg: $('engine-withoutbg'),
-        rembg: $('engine-rembg'),
 
         // Batch
         batchZone: $('batch-upload-zone'),
         batchInput: $('batch-file-input'),
         batchList: $('batch-file-list'),
+        batchListHeader: $('batch-list-header'),
+        batchCountBadge: $('batch-count-badge'),
         batchActions: $('batch-actions'),
         batchStatus: $('batch-status'),
         batchProcessBtn: $('batch-process-btn'),
         batchClearBtn: $('batch-clear-btn'),
         batchDownloadBtn: $('batch-download-btn'),
+        batchProgressBar: $('batch-progress-bar'),
+        batchProgressBarContainer: $('batch-progress-bar-container'),
 
         // Editor
         editLoading: $('edit-loading'),
@@ -52,6 +58,7 @@
     let originalFilename = null;
     let batchQueue = [];
     let processedFiles = [];
+    let isBatchProcessing = false;
 
     // --- Init Handlers ---
 
@@ -68,9 +75,11 @@
     el.batchClearBtn.onclick = clearBatch;
     el.batchDownloadBtn.onclick = downloadBatchZip;
 
-    // Editor Handlers
+    // Global Engine Handlers
     el.withoutbg.onclick = () => setEngine('withoutbg');
     el.rembg.onclick = () => setEngine('rembg');
+
+    // Editor Handlers
     el.downloadBtn.onclick = () => filename && (location.href = `/api/download/${filename}/`);
     el.newBtn.onclick = reset;
     el.colorBtns.forEach(btn => btn.onclick = () => updateComposite(btn.dataset.color));
@@ -86,7 +95,7 @@
     document.addEventListener('paste', e => {
         const file = e.clipboardData.files[0];
         if (file && file.type.startsWith('image/')) {
-            if (el.viewSingle.classList.contains('hidden')) {
+            if (!el.viewBatch.classList.contains('hidden')) {
                 // In batch mode
                 handleBatchSelect([file]);
             } else {
@@ -134,6 +143,7 @@
     }
 
     function setEngine(e) {
+        if (isBatchProcessing) return; // Prevent changing engine during batch
         engine = e;
         el.withoutbg.classList.toggle('active', e === 'withoutbg');
         el.rembg.classList.toggle('active', e === 'rembg');
@@ -209,39 +219,72 @@
     function renderBatchList() {
         if (batchQueue.length > 0) {
             el.batchList.classList.remove('hidden');
+            el.batchListHeader.classList.remove('hidden');
             el.batchActions.classList.remove('hidden');
             el.batchZone.classList.add('hidden');
         } else {
             el.batchList.classList.add('hidden');
+            el.batchListHeader.classList.add('hidden');
             el.batchActions.classList.add('hidden');
             el.batchZone.classList.remove('hidden');
         }
 
-        el.batchStatus.textContent = `${batchQueue.length} files`;
+        el.batchCountBadge.textContent = batchQueue.length;
+        el.batchStatus.textContent = `${batchQueue.length} files in queue`;
 
         el.batchList.innerHTML = batchQueue.map(item => `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100" id="item-${item.id}">
-                <div class="flex items-center gap-3">
-                    <div class="w-2 h-2 rounded-full ${getStatusColor(item.status)}"></div>
-                    <span class="text-sm font-medium text-gray-700 truncate max-w-[200px]">${item.file.name}</span>
-                    <span class="text-xs text-gray-400">(${(item.file.size / 1024).toFixed(0)} KB)</span>
+            <div class="batch-item flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm" id="item-${item.id}">
+                <div class="flex items-center gap-4">
+                    <div class="status-indicator w-3 h-3 rounded-full ${getStatusColor(item.status)}"></div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900 truncate max-w-[240px]">${item.file.name}</p>
+                        <p class="text-xs text-gray-500 uppercase font-medium">${(item.file.size / 1024).toFixed(0)} KB • ${item.status}</p>
+                    </div>
                 </div>
-                ${item.status === 'done' ?
-                '<span class="text-xs font-bold text-green-600">DONE</span>' :
-                item.status === 'error' ?
-                    '<span class="text-xs font-bold text-red-600">ERROR</span>' : ''}
+                <div class="flex items-center gap-2">
+                    ${item.status === 'done' ? `
+                        <span class="inline-flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            SUCCESS
+                        </span>
+                    ` : item.status === 'error' ? `
+                        <span class="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-lg">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            FAILED
+                        </span>
+                    ` : ''}
+                </div>
             </div>
         `).join('');
     }
 
     async function processBatchQueue() {
+        if (isBatchProcessing || batchQueue.length === 0) return;
+
+        isBatchProcessing = true;
         el.batchProcessBtn.disabled = true;
-        el.batchProcessBtn.textContent = 'Processing...';
+        el.batchProcessBtn.innerHTML = `
+            <svg class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Processing...
+        `;
+        el.batchProgressBarContainer.classList.remove('hidden');
+        el.batchClearBtn.classList.add('hidden');
 
         processedFiles = [];
+        let completedCount = 0;
 
         for (const item of batchQueue) {
-            if (item.status === 'done') continue;
+            if (item.status === 'done') {
+                completedCount++;
+                continue;
+            }
 
             updateBatchItemStatus(item.id, 'processing');
 
@@ -255,31 +298,76 @@
                 item.status = 'error';
                 updateBatchItemStatus(item.id, 'error');
             }
+
+            completedCount++;
+            const progress = (completedCount / batchQueue.length) * 100;
+            el.batchProgressBar.style.width = `${progress}%`;
+            el.batchStatus.textContent = `Processed ${completedCount}/${batchQueue.length} files`;
         }
 
-        el.batchProcessBtn.textContent = 'Completed';
+        isBatchProcessing = false;
+        el.batchProcessBtn.innerHTML = `
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Batch Completed
+        `;
+        el.batchClearBtn.classList.remove('hidden');
+
         if (processedFiles.length > 0) {
             el.batchDownloadBtn.classList.remove('hidden');
         }
     }
 
     function updateBatchItemStatus(id, status) {
-        const indicator = document.querySelector(`#item-${id} .w-2`);
-        if (indicator) {
-            indicator.className = `w-2 h-2 rounded-full ${getStatusColor(status)}`;
+        const item = batchQueue.find(i => i.id === id);
+        if (item) item.status = status;
+
+        const elItem = $(`item-${id}`);
+        if (elItem) {
+            const indicator = elItem.querySelector('.status-indicator');
+            const subtext = elItem.querySelector('.text-gray-500');
+            const actions = elItem.querySelector('.flex.items-center.gap-2');
+
+            if (indicator) indicator.className = `status-indicator w-3 h-3 rounded-full ${getStatusColor(status)}`;
+            if (subtext) subtext.textContent = `${(item.file.size / 1024).toFixed(0)} KB • ${status}`;
+
+            if (status === 'done') {
+                actions.innerHTML = `
+                    <span class="inline-flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        SUCCESS
+                    </span>
+                `;
+            } else if (status === 'error') {
+                actions.innerHTML = `
+                    <span class="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-lg">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        FAILED
+                    </span>
+                `;
+            }
         }
     }
 
     function getStatusColor(status) {
         if (status === 'pending') return 'bg-gray-300';
         if (status === 'processing') return 'bg-blue-500 animate-pulse';
-        if (status === 'done') return 'bg-green-500';
-        if (status === 'error') return 'bg-red-500';
+        if (status === 'done') return 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]';
+        if (status === 'error') return 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]';
         return 'bg-gray-300';
     }
 
     async function downloadBatchZip() {
         if (processedFiles.length === 0) return;
+
+        el.batchDownloadBtn.disabled = true;
+        const originalText = el.batchDownloadBtn.innerHTML;
+        el.batchDownloadBtn.innerHTML = '<span class="animate-pulse">Preparing ZIP...</span>';
 
         try {
             const res = await fetch('/api/batch-zip/', {
@@ -291,21 +379,35 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'toamun-batch-results.zip';
+                a.download = `toamun-batch-${new Date().getTime()}.zip`;
                 a.click();
             }
         } catch (e) {
             console.error(e);
+        } finally {
+            el.batchDownloadBtn.disabled = false;
+            el.batchDownloadBtn.innerHTML = originalText;
         }
     }
 
     function clearBatch() {
+        if (isBatchProcessing) return;
         batchQueue = [];
         processedFiles = [];
         renderBatchList();
         el.batchProcessBtn.disabled = false;
-        el.batchProcessBtn.textContent = 'Start Processing';
+        el.batchProcessBtn.innerHTML = `
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Start Batch Processing
+        `;
         el.batchDownloadBtn.classList.add('hidden');
+        el.batchProgressBarContainer.classList.add('hidden');
+        el.batchProgressBar.style.width = '0%';
     }
 
     // --- Helpers ---
@@ -313,7 +415,7 @@
     async function uploadFile(file) {
         const form = new FormData();
         form.append('image', file);
-        form.append('engine', engine); // Use current selected engine for batch too
+        form.append('engine', engine);
 
         const res = await fetch('/api/upload/', { method: 'POST', body: form });
         const data = await res.json();
